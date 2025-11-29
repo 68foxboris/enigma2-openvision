@@ -13,11 +13,7 @@
 #ifdef MEMLEAK_CHECK
 AllocList *allocList;
 pthread_mutex_t memLock =
-#ifdef __GLIBC__
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#else
-	{{PTHREAD_MUTEX_RECURSIVE}};
-#endif
 
 void DumpUnfreed()
 {
@@ -83,13 +79,7 @@ void DumpUnfreed()
 int debugLvl = lvlDebug;
 static int debugTime = 2; // Bitmap: 0 = none, 1 = secs since boot, 2 = local time, 3 = boot and local, 6 = local date/time, 7 = boot and date/time
 
-static pthread_mutex_t DebugLock = 
-#ifdef __GLIBC__
-    PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP;
-#else
-    PTHREAD_MUTEX_INITIALIZER;
-#endif
-
+static pthread_mutex_t DebugLock = PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP;
 #define RINGBUFFER_SIZE 16384
 static char ringbuffer[RINGBUFFER_SIZE];
 static unsigned int ringbuffer_head;
@@ -141,6 +131,11 @@ void retrieveLogBuffer(const char **p1, unsigned int *s1, const char **p2, unsig
 	}
 }
 
+void clearRingBuffer()
+{
+	std::memset(ringbuffer, 0, RINGBUFFER_SIZE);
+	ringbuffer_head = 0;
+}
 
 extern void bsodFatal(const char *component);
 
@@ -149,26 +144,30 @@ extern void bsodFatal(const char *component);
 int formatTime(char *buf, int bufferSize, int flags)
 {
 	int pos = 0;
-	struct timespec tp = {};
-	struct tm loctime;
-	struct timeval tim;
-
-	if (!(flags & _DBGFLG_NOTIME)) {
-		if (debugTime & 6) {
+	if (!(flags & _DBGFLG_NOTIME))
+	{
+		if (debugTime & 6)
+		{
+			struct tm loctime = {};
+			struct timeval tim = {};
 			gettimeofday(&tim, NULL);
 			localtime_r(&tim.tv_sec, &loctime);
-			if (debugTime & 4) {
-				pos += snprintf(buf + pos, bufferSize - pos, "%04d-%02d-%02d ", 
-					loctime.tm_year + 1900, loctime.tm_mon + 1, loctime.tm_mday);
+			if (debugTime & 4)
+			{
+				pos += snprintf(buf + pos, bufferSize - pos, "%04d-%02d-%02d ", loctime.tm_year + 1900, loctime.tm_mon + 1, loctime.tm_mday);
 			}
-			if (debugTime & 2) {
-				pos += snprintf(buf + pos, bufferSize - pos, "%02d:%02d:%02d.%04lu ", 
-					loctime.tm_hour, loctime.tm_min, loctime.tm_sec, tim.tv_usec / 100L);
+			if (debugTime & 2)
+			{
+				// Cast to (long long) is to cater for older 32-bit time fields
+				pos += snprintf(buf + pos, bufferSize - pos, "%02d:%02d:%02d.%04lld ", loctime.tm_hour, loctime.tm_min, loctime.tm_sec, (long long)tim.tv_usec / 100L);
 			}
 		}
-		if (debugTime & 1) {
+		if (debugTime & 1)
+		{
+			struct timespec tp = {};
 			clock_gettime(CLOCK_MONOTONIC, &tp);
-			pos += snprintf(buf + pos, bufferSize - pos, "<%6lu.%04lu> ", tp.tv_sec, tp.tv_nsec/100000);
+			// Cast to (long long) is to cater for older 32-bit time fields
+			pos += snprintf(buf + pos, bufferSize - pos, "<%6lld.%06lld> ", (long long)tp.tv_sec, (long long)tp.tv_nsec / 1000);
 		}
 	}
 	return pos;
