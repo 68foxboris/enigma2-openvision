@@ -275,7 +275,7 @@ void eActionMap::keyPressed(const std::string &device, int key, int flags)
 		if (flags == eRCKey::flagLong)
 			c->second.m_long_key_pressed = true;
 		else if (flags == eRCKey::flagBreak && c->second.m_long_key_pressed)
-			finalFlag = eRCKey::flagStop;
+			continue;
 
 		// is this a native context?
 		if (c->second.m_widget)
