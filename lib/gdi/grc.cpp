@@ -813,7 +813,7 @@ void gDC::exec(const gOpcode *o)
 				if ((int)text.size() > ns)
 				{
 					text.resize(ns);
-					text += u8"…";
+					text += (const char *)u8"…";
 				}
 				if (o->parm.renderText->text)
 					free(o->parm.renderText->text);
