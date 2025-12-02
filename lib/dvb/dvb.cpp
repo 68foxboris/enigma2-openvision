@@ -2,7 +2,6 @@
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/dmx.h>
 #include <linux/dvb/version.h>
-#include <lib/python/python.h>
 #include <lib/base/cfile.h>
 #include <lib/base/eerror.h>
 #include <lib/base/estring.h>
@@ -862,9 +861,9 @@ PyObject *eDVBResourceManager::setFrontendSlotInformations(ePyObject list)
 			Enabled = PyTuple_GET_ITEM(obj, 2);
 			IsDVBS2 = PyTuple_GET_ITEM(obj, 3);
 			frontendId = PyTuple_GET_ITEM(obj, 4);
-			if (!PyInt_Check(Id) || !PyString_Check(Descr) || !PyBool_Check(Enabled) || !PyBool_Check(IsDVBS2) || !PyInt_Check(frontendId))
+			if (!PyLong_Check(Id) || !PyUnicode_Check(Descr) || !PyBool_Check(Enabled) || !PyBool_Check(IsDVBS2) || !PyLong_Check(frontendId))
 				continue;
-			if (!i->m_frontend->setSlotInfo(PyInt_AsLong(Id), PyString_AS_STRING(Descr), Enabled == Py_True, IsDVBS2 == Py_True, PyInt_AsLong(frontendId)))
+			if (!i->m_frontend->setSlotInfo(PyLong_AsLong(Id), PyUnicode_AsUTF8(Descr), Enabled == Py_True, IsDVBS2 == Py_True, PyLong_AsLong(frontendId)))
 				continue;
 			++assigned;
 			break;
@@ -887,9 +886,9 @@ PyObject *eDVBResourceManager::setFrontendSlotInformations(ePyObject list)
 			Enabled = PyTuple_GET_ITEM(obj, 2);
 			IsDVBS2 = PyTuple_GET_ITEM(obj, 3);
 			frontendId = PyTuple_GET_ITEM(obj, 4);
-			if (!PyInt_Check(Id) || !PyString_Check(Descr) || !PyBool_Check(Enabled) || !PyBool_Check(IsDVBS2) || !PyInt_Check(frontendId))
+			if (!PyInt_Check(Id) || !PyUnicode_Check(Descr) || !PyBool_Check(Enabled) || !PyBool_Check(IsDVBS2) || !PyLong_Check(frontendId))
 				continue;
-			if (!i->m_frontend->setSlotInfo(PyInt_AsLong(Id), PyString_AS_STRING(Descr), Enabled == Py_True, IsDVBS2 == Py_True, PyInt_AsLong(frontendId)))
+			if (!i->m_frontend->setSlotInfo(PyLong_AsLong(Id), PyUnicode_AsUTF8(Descr), Enabled == Py_True, IsDVBS2 == Py_True, PyLong_AsLong(frontendId)))
 				continue;
 			break;
 		}
@@ -1535,11 +1534,7 @@ RESULT eDVBResourceManager::removeChannel(eDVBChannel *ch)
 	return -ENOENT;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eDVBResourceManager::connectChannelAdded(const sigc::slot<void(eDVBChannel*)> &channelAdded, ePtr<eConnection> &connection)
-#else
-RESULT eDVBResourceManager::connectChannelAdded(const sigc::slot1<void,eDVBChannel*> &channelAdded, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((eDVBResourceManager*)this, m_channelAdded.connect(channelAdded));
 	return 0;
@@ -2377,21 +2372,13 @@ RESULT eDVBChannel::setChannel(const eDVBChannelID &channelid, ePtr<iDVBFrontend
 	return 0;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eDVBChannel::connectStateChange(const sigc::slot<void(iDVBChannel*)> &stateChange, ePtr<eConnection> &connection)
-#else
-RESULT eDVBChannel::connectStateChange(const sigc::slot1<void,iDVBChannel*> &stateChange, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((iDVBChannel*)this, m_stateChanged.connect(stateChange));
 	return 0;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eDVBChannel::connectEvent(const sigc::slot<void(iDVBChannel*,int)> &event, ePtr<eConnection> &connection)
-#else
-RESULT eDVBChannel::connectEvent(const sigc::slot2<void,iDVBChannel*,int> &event, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((iDVBChannel*)this, m_event.connect(event));
 	return 0;
@@ -2755,11 +2742,7 @@ void eCueSheet::setDecodingDemux(iDVBDemux *demux, iTSMPEGDecoder *decoder)
 	m_decoder = decoder;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eCueSheet::connectEvent(const sigc::slot<void(int)> &event, ePtr<eConnection> &connection)
-#else
-RESULT eCueSheet::connectEvent(const sigc::slot1<void,int> &event, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection(this, m_event.connect(event));
 	return 0;
