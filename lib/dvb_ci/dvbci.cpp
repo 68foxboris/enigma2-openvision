@@ -930,14 +930,14 @@ PyObject *eDVBCIInterfaces::getDescrambleRules(int slotid)
 	while(caids)
 	{
 		--caids;
-		PyList_SET_ITEM(caid_list, caids, PyInt_FromLong(*caid_it));
+		PyList_SET_ITEM(caid_list, caids, PyLong_FromLong(*caid_it));
 		++caid_it;
 	}
 	serviceSet::iterator ref_it(slot->possible_services.begin());
 	while(services)
 	{
 		--services;
-		PyList_SET_ITEM(service_list, services, PyString_FromString(ref_it->toString().c_str()));
+		PyList_SET_ITEM(service_list, services, PyUnicode_FromString(ref_it->toString().c_str()));
 		++ref_it;
 	}
 	providerSet::iterator provider_it(slot->possible_providers.begin());
@@ -1043,21 +1043,21 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
-		if (!PyString_Check(PyTuple_GET_ITEM(tuple, 0)))
+		if (!PyUnicode_Check(PyTuple_GET_ITEM(tuple, 0)))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules 1st entry in provider tuple is not a string it is '%s'", PyObject_TypeStr(PyTuple_GET_ITEM(tuple, 0)));
 			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
-		if (!PyInt_Check(PyTuple_GET_ITEM(tuple, 1)))
+		if (!PyLong_Check(PyTuple_GET_ITEM(tuple, 1)))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules 2nd entry in provider tuple is not a long it is '%s'", PyObject_TypeStr(PyTuple_GET_ITEM(tuple, 1)));
 			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
-		const char *tmpstr = PyString_AS_STRING(PyTuple_GET_ITEM(tuple, 0));
+		const char *tmpstr = PyUnicode_AsUTF8(PyTuple_GET_ITEM(tuple, 0));
 		uint32_t orbpos = PyLong_AsUnsignedLong(PyTuple_GET_ITEM(tuple, 1));
 		if (strlen(tmpstr))
 			slot->possible_providers.insert(std::pair<std::string, uint32_t>(tmpstr, orbpos));
