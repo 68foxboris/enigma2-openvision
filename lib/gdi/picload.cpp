@@ -1047,15 +1047,15 @@ PyObject *ePicLoad::getInfo(const char *filename)
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->CameraMake));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->CameraModel));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->DateTime));
-		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString("%d x %d", m_exif->m_exifinfo->Width, m_exif->m_exifinfo->Height));
+		PyList_SET_ITEM(list, pos++,  PyUnicode_FromFormat("%d x %d", m_exif->m_exifinfo->Width, m_exif->m_exifinfo->Height));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->FlashUsed));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->Orientation));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->Comments));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->MeteringMode));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->ExposureProgram));
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(m_exif->m_exifinfo->LightSource));
-		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString("%d", m_exif->m_exifinfo->CompressionLevel));
-		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString("%d", m_exif->m_exifinfo->ISOequivalent));
+		PyList_SET_ITEM(list, pos++,  PyUnicode_FromFormat("%d", m_exif->m_exifinfo->CompressionLevel));
+		PyList_SET_ITEM(list, pos++,  PyUnicode_FromFormat("%d", m_exif->m_exifinfo->ISOequivalent));
 		snprintf(tmp, sizeof(tmp) - 1, "%.2f", m_exif->m_exifinfo->Xresolution);
 		PyList_SET_ITEM(list, pos++,  PyUnicode_FromString(tmp));
 		snprintf(tmp, sizeof(tmp) - 1, "%.2f", m_exif->m_exifinfo->Yresolution);
@@ -1416,11 +1416,7 @@ RESULT ePicLoad::setPara(PyObject *val)
 		int width		= PyLong_AsLong(PySequence_Fast_GET_ITEM(fast, 0));
 		int height		= PyLong_AsLong(PySequence_Fast_GET_ITEM(fast, 1));
 		ePyObject pas = PySequence_Fast_GET_ITEM(fast, 2);
-#if PY_MAJOR_VERSION < 3
-		double aspectRatio 	= PyLong_AsLong(pas);
-#else
-		double aspectRatio 	= PyFloat_Check(pas) ? PyFloat_AsDouble(pas) : PyLong_AsDouble(pas); 
-#endif
+		double aspectRatio 	= PyFloat_Check(pas) ? PyFloat_AsDouble(pas) : PyLong_AsDouble(pas);
 		int as			= PyLong_AsLong(PySequence_Fast_GET_ITEM(fast, 3));
 		bool useCache		= PyLong_AsLong(PySequence_Fast_GET_ITEM(fast, 4));
 		int resizeType	        = PyLong_AsLong(PySequence_Fast_GET_ITEM(fast, 5));
