@@ -25,7 +25,6 @@
 #include <lib/dvb_ci/dvbci_ccmgr.h>
 
 #include <dvbsi++/ca_program_map_section.h>
-#include <lib/python/python.h>
 
 eDVBCIInterfaces *eDVBCIInterfaces::instance = 0;
 
@@ -1070,14 +1069,14 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 	{
 		--size;
 		ePyObject caid = PyList_GET_ITEM(caid_list, size);
-		if (!PyInt_Check(caid))
+		if (!PyLong_Check(caid))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules entry in caid list is not a long it is '%s'!!", PyObject_TypeStr(caid));
 			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
-		int tmpcaid = PyInt_AsLong(caid);
+		int tmpcaid = PyLong_AsLong(caid);
 		if (tmpcaid > 0 && tmpcaid < 0x10000)
 			slot->possible_caids.insert(tmpcaid);
 		else
@@ -1105,7 +1104,7 @@ PyObject *eDVBCIInterfaces::readCICaIds(int slotid)
 		if (ci_caids)
 		{
 			for (std::vector<uint16_t>::const_iterator it = ci_caids->begin(); it != ci_caids->end(); ++it)
-				PyList_SET_ITEM(list, idx++, PyInt_FromLong(*it));
+				PyList_SET_ITEM(list, idx++, PyLong_FromLong(*it));
 		}
 		return list;
 	}
