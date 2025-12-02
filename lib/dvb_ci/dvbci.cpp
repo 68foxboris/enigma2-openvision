@@ -944,7 +944,7 @@ PyObject *eDVBCIInterfaces::getDescrambleRules(int slotid)
 	while(providers)
 	{
 		ePyObject tuple = PyTuple_New(2);
-		PyTuple_SET_ITEM(tuple, 0, PyString_FromString(provider_it->first.c_str()));
+		PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString(provider_it->first.c_str()));
 		PyTuple_SET_ITEM(tuple, 1, PyLong_FromUnsignedLong(provider_it->second));
 		--providers;
 		PyList_SET_ITEM(provider_list, providers, tuple);
