@@ -1637,13 +1637,13 @@ void fillTuple(ePyObject tuple, const char *argstring, int argcount, ePyObject s
 				tmp = ptr ? PyLong_FromLong(ptr->getDuration()) : (evData ? PyLong_FromLong(evData->getDuration()) : ePyObject());
 				break;
 			case 'T': // Event Title
-				tmp = ptr ? PyUnicode_FromString(ptr->getEventName().c_str()) : ePyObject();
+				tmp = ptr ? ePyObject(PyUnicode_FromString(ptr->getEventName().c_str())) : ePyObject();
 				break;
 			case 'S': // Event Short Description
-				tmp = ptr ? PyUnicode_FromString(ptr->getShortDescription().c_str()) : ePyObject();
+				tmp = ptr ? ePyObject(PyUnicode_FromString(ptr->getShortDescription().c_str())) : ePyObject();
 				break;
 			case 'E': // Event Extended Description
-				tmp = ptr ? PyUnicode_FromString(ptr->getExtendedDescription().c_str()) : ePyObject();
+				tmp = ptr ? ePyObject(PyUnicode_FromString(ptr->getExtendedDescription().c_str())) : ePyObject();
 				break;
 			case 'P': // Event Parental Rating
 				tmp = ptr ? ePyObject(ptr->getParentalData()) : ePyObject();
@@ -1698,7 +1698,7 @@ int handleEvent(eServiceEvent *ptr, ePyObject dest_list, const char* argstring, 
 				Py_DECREF(nowTime);
 			Py_DECREF(convertFuncArgs);
 			Py_DECREF(dest_list);
-			PyErr_SetString(PyExc_StandardError, "[eEPGCache] handleEvent: error in convertFunc execute");
+			PyErr_SetString(PyExc_Exception, "[eEPGCache] handleEvent: error in convertFunc execute");
 			//eDebug("[eEPGCache] handleEvent: error in convertFunc execute");
 			return -1;
 		}
