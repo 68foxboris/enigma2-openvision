@@ -1010,14 +1010,14 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 	{
 		--size;
 		ePyObject refstr = PyList_GET_ITEM(service_list, size);
-		if (!PyString_Check(refstr))
+		if (!PyUnicode_Check(refstr))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules entry in service list is not a string.. it is '%s'!!", PyObject_TypeStr(refstr));
 			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
-		const char *tmpstr = PyString_AS_STRING(refstr);
+		const char *tmpstr = PyUnicode_AsUTF8(refstr);
 		eServiceReference ref(tmpstr);
 		if (ref.valid())
 			slot->possible_services.insert(ref);
