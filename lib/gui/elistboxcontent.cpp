@@ -1373,13 +1373,13 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				int filled = PyFloat_Check(pfilled_perc) ? (int)PyFloat_AsDouble(pfilled_perc) : PyLong_FromLong(pfilled_perc);
 
 				if ((filled < 0) && data) /* if the string is in a negative number, it refers to the 'data' list. */
-					filled = PyLong_FromLong(PyTuple_GetItem(data, -filled));
+					filled = PyLong_AsLong(PyTuple_GetItem(data, -filled));
 
 				/* don't do anything if percent out of range */
 				if ((filled < 0) || (filled > 100))
 					continue;
 
-				int bwidth = pborderWidth ? PyLong_FromLong(pborderWidth) : 2;
+				int bwidth = pborderWidth ? PyLong_AsLong(pborderWidth) : 2;
 
 				if (selected && itemZoomContent)
 				{
@@ -1425,7 +1425,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				if (ppixmap)
 				{
 					ePtr<gPixmap> pixmap;
-					if (PyInt_Check(ppixmap) && data) /* if the pixmap is in fact a number, it refers to the data list */
+					if (PyLong_Check(ppixmap) && data) /* if the pixmap is in fact a number, it refers to the data list */
 						ppixmap = PyTuple_GetItem(data, PyLong_FromLong(ppixmap));
 
 					if (SwigFromPython(pixmap, ppixmap))
@@ -1540,7 +1540,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 					goto error_out;
 				}
 
-				if (PyInt_Check(ppixmap) && data) /* if the pixmap is in fact a number, it refers to the 'data' list. */
+				if (PyLong_Check(ppixmap) && data) /* if the pixmap is in fact a number, it refers to the 'data' list. */
 					ppixmap = PyTuple_GetItem(data, PyLong_AsLong(ppixmap));
 
 				/* don't do anything if we have 'None' as pixmap */
