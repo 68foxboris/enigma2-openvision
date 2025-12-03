@@ -553,7 +553,7 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 			/* handle left part. get item from tuple, convert to string, display. */
 			text = PyTuple_GET_ITEM(item, 0);
 			text = PyObject_Str(text); /* creates a new object - old object was borrowed! */
-			const char *string = (text && PyString_Check(text)) ? PyString_AsString(text) : "<not-a-string>";
+			const char *string = (text && PyUnicode_Check(text)) ? PyUnicode_AsUTF8(text) : "<not-a-string>";
 			eRect labelrect(ePoint(offset.x() + 15, offset.y()), m_itemsize);
 			painter.renderText(labelrect, string,
 							   gPainter::RT_HALIGN_LEFT | gPainter::RT_VALIGN_CENTER, border_color, border_size);
@@ -1148,7 +1148,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 					if (pborderColor)
 					{
-						unsigned int color = PyInt_AsUnsignedLongMask(selected ? pborderColorSelected : pborderColor);
+						unsigned int color = PyLong_AsUnsignedLongMask(selected ? pborderColorSelected : pborderColor);
 						painter.setForegroundColor(gRGB(color));
 					}
 
