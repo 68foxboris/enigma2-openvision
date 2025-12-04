@@ -2,7 +2,6 @@
 from errno import ENOENT
 from os import environ, path, symlink, unlink, walk
 from os.path import exists, isfile, join as pathjoin, realpath
-from six import PY2
 from time import gmtime, localtime, strftime, time, tzset
 from xml.etree.cElementTree import ParseError, parse
 
@@ -131,9 +130,12 @@ class Timezones:
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
 				if name is None:
 					continue
-				name = name.encode(encoding="UTF-8", errors="ignore") if PY2 else name
-				area = area.encode(encoding="UTF-8", errors="ignore") if PY2 else area
-				zone = zone.encode(encoding="UTF-8", errors="ignore") if PY2 else zone
+				if isinstance(name, str):
+					name = name.encode(encoding="UTF-8", errors="ignore").decode()
+				if isinstance(area, str):
+					area = area.encode(encoding="UTF-8", errors="ignore").decode()
+				if isinstance(zone, str):
+					zone = zone.encode(encoding="UTF-8", errors="ignore").decode()
 				zones.append((zone, name.replace("_", " ")))
 			if area:
 				if area in self.timezones:
@@ -161,12 +163,14 @@ class Timezones:
 	def readTimezones(self, filename=TIMEZONE_FILE):  # Read the timezones.xml file and load all time zones found.
 		fileDom = fileReadXML(filename, source=MODULE_NAME)
 		zones = []
-		if fileDom:
+		if fileDom is not None:
 			for zone in fileDom.findall("zone"):
 				name = zone.get("name", "")
-				name = name.encode(encoding="UTF-8", errors="ignore") if PY2 else name
+				if isinstance(name, str):
+					name = name.encode(encoding="UTF-8", errors="ignore").decode()
 				zonePath = zone.get("zone", "")
-				zonePath = zonePath.encode(encoding="UTF-8", errors="ignore") if PY2 else zonePath
+				if isinstance(zonePath, str):
+					zonePath = zonePath.encode(encoding="UTF-8", errors="ignore").decode()
 				if exists(pathjoin(TIMEZONE_DATA, zonePath)):
 					zones.append((zonePath, name))
 				else:
