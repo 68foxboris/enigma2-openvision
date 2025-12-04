@@ -1,4 +1,4 @@
-SUBDIRS = menu icons buttons LCDIcons
+SUBDIRS = menu icons buttons LCDIcons spinner
 
 installdir = $(pkgdatadir)/skin_default
 
