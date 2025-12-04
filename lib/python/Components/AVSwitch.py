@@ -210,8 +210,6 @@ def InitAVSwitch():
 	config.av.generalPCMdelay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
 	config.av.vcrswitch = ConfigEnableDisable(default=False)
 
-	iAVSwitch = AVSwitch()
-
 	def setColorFormat(configElement):
 		if config.av.videoport and config.av.videoport.value == "YPbPr":
 			iAVSwitch.setColorFormat("yuv")
@@ -934,3 +932,6 @@ def InitAVSwitch():
 		("50", _("Force 50Hz")),
 		("60", _("Force 60Hz"))
 	])
+
+
+iAVSwitch = AVSwitch()
