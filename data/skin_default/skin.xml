@@ -107,6 +107,10 @@
 		<widget name="key_blue" position="405,0" zPosition="1" size="135,40" font="Regular;20" horizontalAlignment="center" verticalAlignment="center" backgroundColor="#18188b" transparent="1"/>
 		<widget name="AboutScrollLabel" font="Regular;20" position="0,40" size="540,450" zPosition="2" horizontalAlignment="center"/>
 	</screen>
+	<!-- Open Vision information screen -->
+	<screen name="OpenVisionInformation" position="center,center" size="650,650" title="Open Vision information">
+		<widget name="AboutScrollLabel" font="Regular;30" position="0,40" size="650,610" zPosition="2" horizontalAlignment="center"/>
+	</screen>
 	<!-- DVB information screen -->
 	<screen name="DVBInformation" position="center,center" size="650,650" title="DVB information">
 		<widget name="AboutScrollLabel" font="Regular;30" position="0,40" size="650,610" zPosition="2" horizontalAlignment="center"/>
@@ -416,13 +420,6 @@ self.autoResize()
 	<!-- unhandled key pressed -->
 	<screen name="UnhandledKey" flags="wfNoBorder" position="620,50" size="34,45" title="UnhandledKey" zPosition="100" backgroundColor="transparent">
 		<widget name="UnhandledKeyPixmap" pixmap="unhandled-key.png" position="0,0" size="34,45" alphaTest="off"/>
-	</screen>
-	<!-- UpdatePlugin in  SoftwareUpdate -->
-	<screen name="UpdatePlugin" position="center,center" size="550,300">
-		<widget name="activityslider" position="0,0" size="550,5"  />
-		<widget name="slider" position="0,150" size="550,30"  />
-		<widget source="package" render="Label" position="10,30" size="540,20" font="Regular;18" horizontalAlignment="center" verticalAlignment="center" backgroundColor="#25062748" transparent="1" />
-		<widget source="status" render="Label" position="10,180" size="540,100" font="Regular;20" horizontalAlignment="center" verticalAlignment="center" backgroundColor="#25062748" transparent="1" />
 	</screen>
 	<!-- EPG Selection - Single -->
 	<screen name="EPGSelection" position="center,center" size="560,430" title="EPG selection">
@@ -813,7 +810,7 @@ self.autoResize()
 	<screen name="LocationBox" position="center,center" size="540,460">
 		<widget name="text" position="0,2" size="540,22" font="Regular;22"/>
 		<widget name="target" position="0,23" size="540,22" verticalAlignment="center" font="Regular;22"/>
-		<widget name="filelist" position="0,55" zPosition="1" size="540,210" scrollbarMode="showOnDemand" selection="0"/>
+		<widget name="filelist" position="0,55" zPosition="1" size="540,210" scrollbarMode="showOnDemand" selection="1"/>
 		<widget name="textbook" position="0,272" size="540,22" font="Regular;22"/>
 		<widget name="booklist" position="5,302" zPosition="2" size="535,100" scrollbarMode="showOnDemand"/>
 		<widget name="red" position="0,415" zPosition="1" size="135,40" pixmap="buttons/red.png" transparent="1" alphaTest="on"/>
@@ -843,7 +840,7 @@ self.autoResize()
 		<widget name="PositionGauge" position="15,138" size="396,10" pointer="position_pointer.png:540,0" seekPointer="position_pointer.png:540,0" transparent="1"/>
 		<widget name="repeat" pixmaps="icons/repeat_off.png,icons/repeat_on.png" position="416,135" size="22,15" transparent="1" alphaTest="on"/>
 		<widget name="filelist" position="15,163" size="550,138" scrollbarMode="showOnDemand"/>
-		<widget name="playlist" position="15,322" size="550,138" scrollbarMode="showOnDemand" selection="0"/>
+		<widget name="playlist" position="15,322" size="550,138" scrollbarMode="showOnDemand" selection="1"/>
 		<widget name="currenttext" position="0,0" size="0,0"/>
 		<widget name="titletext" position="0,0" size="0,0"/>
 	</screen>
@@ -1482,7 +1479,7 @@ self.instance.move(ePoint(orgpos.x() + (orgwidth - newwidth) // 2, orgpos.y() + 
 	<screen name="NumberZapPicon" position="center,center" size="465,116" title="NumberZapPicon">
 		<widget name="number" position="143,4" size="315,55" horizontalAlignment="center" verticalAlignment="center" font="Regular;50"/>
 		<widget source="Service" render="Picon" position="5,16" size="130,85" zPosition="5" alphaTest="blend">
-			<convert type="ServiceName2">Reference</convert>
+			<convert type="ServiceName">Reference</convert>
 		</widget>
 		<widget name="servicename" position="143,60" size="315,55" font="Regular;25" horizontalAlignment="center" verticalAlignment="center"/>
 	</screen>
@@ -1751,7 +1748,7 @@ self.instance.move(ePoint(orgpos.x() + (orgwidth - newwidth) // 2, orgpos.y() + 
 	<screen name="Scart" position="fill" backgroundColor="transparent"/>
 	<!-- Service info -->
 	<screen name="ServiceInfoSimple" position="center,center" size="560,430" title="Service info">
-		<widget name="infolist" position="20,45" size="560,380" selection="0"/>
+		<widget name="infolist" position="20,45" size="560,380" selection="1"/>
 	</screen>
 	<screen name="ServiceInfo" position="center,center" size="560,430" title="Service info">
 		<panel name="ServiceInfoSimple"/>
@@ -1786,7 +1783,7 @@ self.instance.move(ePoint(orgpos.x() + (orgwidth - newwidth) // 2, orgpos.y() + 
 		<widget name="scan_state" position="10,80" zPosition="2" size="400,20" font="Regular;18"/>
 		<widget name="pass" position="10,80" size="400,20" font="Regular;18"/>
 		<widget name="scan_progress" position="10,105" size="400,15" pixmap="progress_big.png" borderWidth="2" borderColor="#cccccc"/>
-		<widget name="servicelist" position="10,135" size="400,265" selection="0"/>
+		<widget name="servicelist" position="10,135" size="400,265" selection="1"/>
 	</screen>
 	<!-- Setup -->
 	<screen name="Setup" position="center,center" size="560,435" title="Setup">
@@ -1842,7 +1839,7 @@ self.instance.move(ePoint(orgpos.x() + (orgwidth - newwidth) // 2, orgpos.y() + 
 			<widget name="languagetext" position="fill" font="Regular;18"/>
 		</panel>
 	</screen>
-	<!-- StartWizard panel Video Wizard -->
+	<!-- it's the same screen... -->
 	<screen name="StartWizard" position="fill" title="Welcome..." flags="wfNoBorder">
 		<panel name="VideoWizard"/>
 	</screen>
@@ -1984,7 +1981,7 @@ self.instance.move(ePoint(orgpos.x() + (orgwidth - newwidth) // 2, orgpos.y() + 
 		<widget name="prompt" position="15,10" size="630,25" font="Regular;20" noWrap="1" transparent="1" />
 		<ePixmap pixmap="buttons/vkey_text.png" position="10,40" size="640,50" alphaTest="blend" zPosition="-4" />
 		<widget name="text" position="15,52" size="630,33" font="Regular;28" horizontalAlignment="right" noWrap="1" transparent="1" />
-		<widget name="list" position="15,95" size="630,225" backgroundColor="#001c2c5c" foregroundColor="window-fg" selection="0" transparent="1" />
+		<widget name="list" position="15,95" size="630,225" backgroundColor="#001c2c5c" foregroundColor="window-fg" selection="1" transparent="1" />
 		<widget name="locale" position="15,335" size="570,25" font="Regular;20" transparent="1" />
 		<widget name="mode" position="585,335" size="60,25" font="Regular;20" horizontalAlignment="right" transparent="1" verticalAlignment="center" />
 		<widget name="language" position="0,0" size="0,0" font="Regular;20" transparent="1" />
