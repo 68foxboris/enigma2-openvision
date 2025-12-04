@@ -374,6 +374,7 @@ class LocaleSelection(Screen, HelpableScreen):
 		config.misc.locale.save()
 		config.misc.language.save()
 		config.misc.country.save()
+		international.activateLanguage(self.currentLocale, runCallbacks=True)
 		international.activateLocale(self.currentLocale, runCallbacks=True)
 		if config.misc.firstrun.value:  # define area and city without network only in first run
 			from Tools.Directories import fileReadXML
@@ -421,8 +422,6 @@ class LocaleSelection(Screen, HelpableScreen):
 			config.misc.country.save()
 		if justlocal:
 			return
-		international.activateLocale(locale, runCallbacks=True)
-
 
 class LocaleSettings(Setup):
 	def __init__(self, session):
