@@ -15,22 +15,10 @@ from Tools.LoadPixmap import LoadPixmap
 
 MODULE_NAME = __name__.split(".")[-1].capitalize()
 
-ovSkin = isfile(resolveFilename(SCOPE_SKINS, "OctEtFHD/skin.xml"))
-
-if BoxInfo.getItem("HasFullHDSkinSupport"):
-	if ovSkin:
-		DEFAULT_SKIN = "OctEtFHD/skin.xml"
-	else:
-		DEFAULT_SKIN = "skin_fallback_1080/skin.xml"
-	EMERGENCY_SKIN = "skin_fallback_1080/skin.xml"
-	EMERGENCY_NAME = "OctEtFHD"
-else:
-	DEFAULT_SKIN = "skin_default/skin.xml"
-	EMERGENCY_SKIN = "skin_default/skin.xml"
-	EMERGENCY_NAME = "Stone II"
-
-SKIN_DEFAULT = "skin_default/skin.xml"
-DEFAULT_DISPLAY_SKIN = "skin_default/skin_display_grautec.xml" if BoxInfo.getItem("grautec") else "skin_default/skin_display.xml"
+DEFAULT_SKIN = BoxInfo.getItem("HasFullHDSkinSupport") and "PLi-FullHD/skin.xml"
+EMERGENCY_SKIN = "skin_default/skin.xml"
+EMERGENCY_NAME = "Default"
+DEFAULT_DISPLAY_SKIN = "skin_default/skin_display.xml"
 USER_SKIN = "skin_user.xml"
 USER_SKIN_TEMPLATE = "skin_user_%s.xml"
 SUBTITLE_SKIN = "skin_subtitles.xml"
@@ -112,7 +100,7 @@ def InitSkins():
 	runCallbacks = False
 	# Add the emergency skin.  This skin should provide enough functionality
 	# to enable basic GUI functions to work.
-	loadSkin(SKIN_DEFAULT, scope=SCOPE_GUISKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID)
+	loadSkin(EMERGENCY_SKIN, scope=SCOPE_GUISKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID)
 	# Add the subtitle skin.
 	loadSkin(SUBTITLE_SKIN, scope=SCOPE_GUISKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID)
 	# Add the main GUI skin.
