@@ -10,7 +10,3 @@ dist_pkgdata_DATA = \
 	setup.xml \
 	skin_subtitles.xml \
 	startwizard.xml
-
-if HAVE_FHDSKIN
-SUBDIRS += skin_fallback_1080
-endif

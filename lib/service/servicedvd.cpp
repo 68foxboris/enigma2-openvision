@@ -9,7 +9,7 @@
 #include <lib/base/init.h>
 #include <lib/gui/esubtitle.h>
 #include <lib/gdi/gpixmap.h>
-#include <lib/python/python.h>
+
 #include <byteswap.h>
 #include <netinet/in.h>
 #ifndef BYTE_ORDER
@@ -20,8 +20,6 @@ extern "C" {
 #include <dreamdvd/ddvdlib.h>
 }
 #include "servicedvd.h"
-
-#include <Python.h>
 
 // eServiceFactoryDVD
 
@@ -433,11 +431,7 @@ eServiceDVD::~eServiceDVD()
 	disableSubtitles();
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eServiceDVD::connectEvent(const sigc::slot<void(iPlayableService*,int)> &event, ePtr<eConnection> &connection)
-#else
-RESULT eServiceDVD::connectEvent(const sigc::slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((iPlayableService*)this, m_event.connect(event));
 	return 0;
@@ -990,7 +984,7 @@ PyObject *eServiceDVD::getCutList()
 	ePyObject list = PyList_New(1);
 	ePyObject tuple = PyTuple_New(2);
 	PyTuple_SetItem(tuple, 0, PyLong_FromLongLong(m_cue_pts));
-	PyTuple_SetItem(tuple, 1, PyInt_FromLong(3));
+	PyTuple_SetItem(tuple, 1, PyLong_FromLong(3));
 	PyList_SetItem(list, 0, tuple);
 	return list;
 }
@@ -1172,26 +1166,20 @@ void eServiceDVD::saveCuesheet()
 
 eAutoInitPtr<eServiceFactoryDVD> init_eServiceFactoryDVD(eAutoInitNumbers::service+1, "eServiceFactoryDVD");
 
-#if PY_MAJOR_VERSION >= 3
-	static struct PyModuleDef servicedvd_moduledef = {
-		PyModuleDef_HEAD_INIT,
-		"servicedvd",		/* m_name */
-		"servicedvd",		/* m_doc */
-		-1,			/* m_size */
-		NULL,			/* m_methods */
-		NULL,			/* m_reload */
-		NULL,			/* m_traverse */
-		NULL,			/* m_clear */
-		NULL,			/* m_free */
-	};
-#endif
+static struct PyModuleDef servicedvd_moduledef = {
+	PyModuleDef_HEAD_INIT,
+	"servicedvd",	/* m_name */
+	"servicedvd",	/* m_doc */
+	-1,				/* m_size */
+	NULL,			/* m_methods */
+	NULL,			/* m_reload */
+	NULL,			/* m_traverse */
+	NULL,			/* m_clear */
+	NULL,			/* m_free */
+};
 
 PyMODINIT_FUNC
 initservicedvd(void)
 {
-#if PY_MAJOR_VERSION >= 3
 	PyModule_Create(&servicedvd_moduledef);
-#else
-	Py_InitModule("servicedvd", NULL);
-#endif
 }

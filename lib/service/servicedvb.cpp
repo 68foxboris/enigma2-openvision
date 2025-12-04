@@ -830,10 +830,10 @@ PyObject *eDVBServiceList::getContent(const char* format, bool sorted)
 					tmp = NEW_eServiceReference(ref);
 					break;
 				case 'C':  // service reference compare string
-					tmp = PyString_FromString(ref.toCompareString().c_str());
+					tmp = PyUnicode_FromString(ref.toCompareString().c_str());
 					break;
 				case 'S':  // service reference string
-					tmp = PyString_FromString(ref.toString().c_str());
+					tmp = PyUnicode_FromString(ref.toString().c_str());
 					break;
 				case 'N':  // service name
 					if (service_center)
@@ -852,11 +852,11 @@ PyObject *eDVBServiceList::getContent(const char* format, bool sorted)
 								name.erase(pos,2);
 
 							if (name.length())
-								tmp = PyString_FromString(name.c_str());
+								tmp = PyUnicode_FromString(name.c_str());
 						}
 					}
 					if (!tmp)
-						tmp = PyString_FromString("<n/a>");
+						tmp = PyUnicode_FromString("<n/a>");
 					break;
 				case 'n':  // short service name
 					if (service_center)
@@ -868,11 +868,11 @@ PyObject *eDVBServiceList::getContent(const char* format, bool sorted)
 							sptr->getName(ref, name);
 							name = buildShortName(name);
 							if (name.length())
-								tmp = PyString_FromString(name.c_str());
+								tmp = PyUnicode_FromString(name.c_str());
 						}
 					}
 					if (!tmp)
-						tmp = PyString_FromString("<n/a>");
+						tmp = PyUnicode_FromString("<n/a>");
 					break;
 				default:
 					if (tuple)
@@ -1572,11 +1572,7 @@ RESULT eDVBServicePlay::setTarget(int target, bool noaudio = false)
 	return 0;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eDVBServicePlay::connectEvent(const sigc::slot<void(iPlayableService*,int)> &event, ePtr<eConnection> &connection)
-#else
-RESULT eDVBServicePlay::connectEvent(const sigc::slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((iPlayableService*)this, m_event.connect(event));
 	return 0;
@@ -2904,7 +2900,7 @@ PyObject *eDVBServicePlay::getCutList()
 	{
 		ePyObject tuple = PyTuple_New(2);
 		PyTuple_SET_ITEM(tuple, 0, PyLong_FromLongLong(i->where));
-		PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(i->what));
+		PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(i->what));
 		PyList_Append(list, tuple);
 		Py_DECREF(tuple);
 	}
@@ -2935,13 +2931,13 @@ void eDVBServicePlay::setCutList(ePyObject list)
 			continue;
 		}
 		ePyObject ppts = PyTuple_GET_ITEM(tuple, 0), ptype = PyTuple_GET_ITEM(tuple, 1);
-		if (!(PyInt_Check(ppts) && PyInt_Check(ptype)))
+		if (!(PyLong_Check(ppts) && PyLong_Check(ptype)))
 		{
-			eDebug("[eDVBServicePlay] cutlist entries need to be (pts, type)-tuples (%d %d)", PyInt_Check(ppts), PyInt_Check(ptype));
+			eDebug("[eDVBServicePlay] cutlist entries need to be (pts, type)-tuples (%d %d)", PyLong_Check(ppts), PyLong_Check(ptype));
 			continue;
 		}
 		pts_t pts = PyLong_AsLongLong(ppts);
-		int type = PyInt_AsLong(ptype);
+		int type = PyLong_AsLong(ptype);
 		m_cue_entries.insert(cueEntry(pts, type));
 		eDebug("[eDVBServicePlay] adding %08llx, %d", pts, type);
 	}

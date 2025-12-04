@@ -4,7 +4,6 @@
 #include <lib/dvb/idemux.h>
 #include <lib/dvb/decoder.h>
 #include <lib/gdi/gpixmap.h>
-#include <lib/python/python.h>
 DEFINE_REF(eDVBRdsDecoder);
 
 /* mode 0: RDS data is included in the audio stream
@@ -135,11 +134,7 @@ void eDVBRdsDecoder::convertRdsMessageToUTF8(unsigned char* buffer, std::string&
 	}
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 void eDVBRdsDecoder::connectEvent(const sigc::slot<void(int)> &slot, ePtr<eConnection> &connection)
-#else
-void eDVBRdsDecoder::connectEvent(const sigc::slot1<void, int> &slot, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection(this, m_event.connect(slot));
 }
@@ -903,10 +898,10 @@ void eDVBRdsDecoder::abortNonAvail()
 ePyObject eDVBRdsDecoder::getRassPictureMask()
 {
 	ePyObject ret = PyTuple_New(5);
-	PyTuple_SET_ITEM(ret, 0, PyInt_FromLong(rass_picture_mask[0]));
-	PyTuple_SET_ITEM(ret, 1, PyInt_FromLong(rass_picture_mask[1]));
-	PyTuple_SET_ITEM(ret, 2, PyInt_FromLong(rass_picture_mask[2]));
-	PyTuple_SET_ITEM(ret, 3, PyInt_FromLong(rass_picture_mask[3]));
-	PyTuple_SET_ITEM(ret, 4, PyInt_FromLong(rass_picture_mask[4]));
+	PyTuple_SET_ITEM(ret, 0, PyLong_FromLong(rass_picture_mask[0]));
+	PyTuple_SET_ITEM(ret, 1, PyLong_FromLong(rass_picture_mask[1]));
+	PyTuple_SET_ITEM(ret, 2, PyLong_FromLong(rass_picture_mask[2]));
+	PyTuple_SET_ITEM(ret, 3, PyLong_FromLong(rass_picture_mask[3]));
+	PyTuple_SET_ITEM(ret, 4, PyLong_FromLong(rass_picture_mask[4]));
 	return ret;
 }

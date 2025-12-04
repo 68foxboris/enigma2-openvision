@@ -2,16 +2,11 @@
 			/* avoid warnigs :) */
 #undef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
-#include <Python.h>
-#if PY_MAJOR_VERSION >= 3
+
 extern "C" PyObject* PyInit__enigma(void);
 extern "C" PyObject* PyInit_eBaseImpl(void);
 extern "C" PyObject* PyInit_eConsoleImpl(void);
-#else
-extern "C" void init_enigma(void);
-extern "C" void eBaseInit(void);
-extern "C" void eConsoleInit(void);
-#endif
+
 extern void bsodFatal(const char *component);
 extern void quitMainloop(int exitCode);
 extern bool bsodRestart();
@@ -131,19 +126,11 @@ ePython::ePython()
 
 //	Py_OptimizeFlag = 1;
 
-#if PY_MAJOR_VERSION >= 3
 	PyImport_AppendInittab("_enigma", PyInit__enigma);
 	PyImport_AppendInittab("eBaseImpl", PyInit_eBaseImpl);
 	PyImport_AppendInittab("eConsoleImpl", PyInit_eConsoleImpl);
-#endif
 
 	Py_Initialize();
-#if PY_MAJOR_VERSION < 3
-	PyEval_InitThreads();
-	init_enigma();
-	eBaseInit();
-	eConsoleInit();
-#endif
 }
 
 ePython::~ePython()
@@ -165,7 +152,7 @@ int ePython::execFile(const char *file)
 int ePython::execute(const std::string &pythonfile, const std::string &funcname)
 {
 	ePyObject pName, pModule, pDict, pFunc, pArgs, pValue;
-	pName = PyString_FromString(pythonfile.c_str());
+	pName = PyUnicode_FromString(pythonfile.c_str());
 
 	pModule = PyImport_Import(pName);
 	Py_DECREF(pName);
@@ -184,7 +171,7 @@ int ePython::execute(const std::string &pythonfile, const std::string &funcname)
 			Py_DECREF(pArgs);
 			if (pValue)
 			{
-				printf("Result of call: %ld\n", PyInt_AsLong(pValue));
+				printf("Result of call: %ld\n", PyLong_AsLong(pValue));
 				Py_DECREF(pValue);
 			} else
 			{
@@ -211,8 +198,8 @@ int ePython::call(ePyObject pFunc, ePyObject pArgs)
 		pValue = PyObject_CallObject(pFunc, pArgs);
  		if (pValue)
 		{
-			if (PyInt_Check(pValue))
-				res = PyInt_AsLong(pValue);
+			if (PyLong_Check(pValue))
+				res = PyLong_AsLong(pValue);
 			else
 				res = 0;
 			Py_DECREF(pValue);
@@ -221,7 +208,7 @@ int ePython::call(ePyObject pFunc, ePyObject pArgs)
 		 	PyErr_Print();
 			ePyObject FuncStr = PyObject_Str(pFunc);
 			ePyObject ArgStr = PyObject_Str(pArgs);
-			eLog(lvlFatal, "[ePyObject] (PyObject_CallObject(%s,%s) failed)", PyString_AS_STRING(FuncStr), PyString_AS_STRING(ArgStr));
+			eLog(lvlFatal, "[ePyObject] (PyObject_CallObject(%s,%s) failed)", PyUnicode_AsUTF8(FuncStr), PyUnicode_AsUTF8(ArgStr));
 			Py_DECREF(FuncStr);
 			Py_DECREF(ArgStr);
 			/* immediately show BSOD, so we have the actual error at the bottom */
@@ -238,7 +225,7 @@ ePyObject ePython::resolve(const std::string &pythonfile, const std::string &fun
 {
 	ePyObject pName, pModule, pDict, pFunc;
 
-	pName = PyString_FromString(pythonfile.c_str());
+	pName = PyUnicode_FromString(pythonfile.c_str());
 
 	pModule = PyImport_Import(pName);
 	Py_DECREF(pName);

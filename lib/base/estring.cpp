@@ -11,7 +11,7 @@
 #include "freesatv2.h"
 #include "big5.h"
 #include "gb18030.h"
-#include <lib/python/python.h>
+#include <Python.h>
 
 std::string buildShortName( const std::string &str )
 {
@@ -916,7 +916,7 @@ std::string repairUTF8(const char *szIn, int len)
 {
 	Py_ssize_t sz = len;
 	PyObject * pyinput = PyUnicode_DecodeUTF8Stateful(szIn, sz, "ignore", NULL);
-	std::string res = PyString_AS_STRING(pyinput);
+	std::string res = PyUnicode_AsUTF8(pyinput);
 	Py_DECREF(pyinput);
 	return res;
 }

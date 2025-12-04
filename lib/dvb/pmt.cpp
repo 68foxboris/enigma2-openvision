@@ -26,7 +26,6 @@
 #include <dvbsi++/application_name_descriptor.h>
 #include <dvbsi++/application_profile.h>
 #include <dvbsi++/application_descriptor.h>
-#include <lib/python/python.h>
 #define PACK_VERSION(major,minor,micro) (((major) << 16) + ((minor) << 8) + (micro))
 #define UNPACK_VERSION(version,major,minor,micro) { \
 		major = (version)&0xff; \
@@ -529,12 +528,12 @@ PyObject *eDVBServicePMTHandler::getHbbTVApplications()
 		for(HbbTVApplicationInfoListConstIterator infoiter = m_HbbTVApplications.begin() ; infoiter != m_HbbTVApplications.end() ; ++infoiter)
 		{
 			ePyObject tuple = PyTuple_New(6);
-			PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong((*infoiter)->m_ControlCode));
-			PyTuple_SET_ITEM(tuple, 1, PyString_FromString((*infoiter)->m_ApplicationName.c_str()));
-			PyTuple_SET_ITEM(tuple, 2, PyString_FromString((*infoiter)->m_HbbTVUrl.c_str()));
-			PyTuple_SET_ITEM(tuple, 3, PyInt_FromLong((*infoiter)->m_OrgId));
-			PyTuple_SET_ITEM(tuple, 4, PyInt_FromLong((*infoiter)->m_AppId));
-			PyTuple_SET_ITEM(tuple, 5, PyInt_FromLong((*infoiter)->m_ProfileCode));
+			PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong((*infoiter)->m_ControlCode));
+			PyTuple_SET_ITEM(tuple, 1, PyUnicode_FromString((*infoiter)->m_ApplicationName.c_str()));
+			PyTuple_SET_ITEM(tuple, 2, PyUnicode_FromString((*infoiter)->m_HbbTVUrl.c_str()));
+			PyTuple_SET_ITEM(tuple, 3, PyLong_FromLong((*infoiter)->m_OrgId));
+			PyTuple_SET_ITEM(tuple, 4, PyLong_FromLong((*infoiter)->m_AppId));
+			PyTuple_SET_ITEM(tuple, 5, PyLong_FromLong((*infoiter)->m_ProfileCode));
 			PyList_Append(ret, tuple);
 			Py_DECREF(tuple);
 		}

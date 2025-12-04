@@ -6,7 +6,6 @@
 #include <lib/base/nconfig.h> 
 #include <lib/base/httpstream.h>
 #include <fcntl.h>
-#include <lib/python/python.h>
 	/* for cutlist */
 #include <byteswap.h>
 #include <netinet/in.h>
@@ -547,11 +546,7 @@ RESULT eDVBServiceRecord::frontendInfo(ePtr<iFrontendInformation> &ptr)
 	return 0;
 }
 
-#if SIGCXX_MAJOR_VERSION == 3
 RESULT eDVBServiceRecord::connectEvent(const sigc::slot<void(iRecordableService*,int)> &event, ePtr<eConnection> &connection)
-#else
-RESULT eDVBServiceRecord::connectEvent(const sigc::slot2<void,iRecordableService*,int> &event, ePtr<eConnection> &connection)
-#endif
 {
 	connection = new eConnection((iRecordableService*)this, m_event.connect(event));
 	return 0;
@@ -674,8 +669,8 @@ PyObject *eDVBServiceRecord::getCutList()
 		pts_t p = *i;
 		eDebug("[eDVBServiceRecord] getCutList %llx", p);
 		ePyObject tuple = PyTuple_New(2);
-		PyTuple_SET_ITEM(tuple, 0, PyLong_FromLongLong(p));
-		PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(2)); /* mark */
+		PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(p));
+		PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(2)); /* mark */
 		PyList_Append(list, tuple);
 		Py_DECREF(tuple);
 	}

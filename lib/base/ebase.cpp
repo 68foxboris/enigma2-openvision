@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include <lib/python/python.h>
+
 #include <lib/base/eerror.h>
 #include <lib/base/elock.h>
 #include <lib/gdi/grc.h>
@@ -173,6 +173,7 @@ void eMainloop::removeSocketNotifier(eSocketNotifier *sn)
 int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject additional)
 {
 	int return_reason = 0;
+
 	if (additional && !PyDict_Check(additional))
 		eFatal("[eMainloop::processOneEvent] additional, but it's not dict");
 
@@ -240,7 +241,7 @@ int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject addi
 		Py_ssize_t pos=0;
 		while (PyDict_Next(additional, &pos, &key, &val)) {
 			pfd[i].fd = PyObject_AsFileDescriptor(key);
-			pfd[i++].events = PyInt_AsLong(val);
+			pfd[i++].events = PyLong_AsLong(val);
 		}
 	}
 
@@ -281,8 +282,8 @@ int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject addi
 				if (!*res)
 					*res = PyList_New(0);
 				ePyObject it = PyTuple_New(2);
-				PyTuple_SET_ITEM(it, 0, PyInt_FromLong(pfd[i].fd));
-				PyTuple_SET_ITEM(it, 1, PyInt_FromLong(pfd[i].revents));
+				PyTuple_SET_ITEM(it, 0, PyLong_FromLong(pfd[i].fd));
+				PyTuple_SET_ITEM(it, 1, PyLong_FromLong(pfd[i].revents));
 				PyList_Append(*res, it);
 				Py_DECREF(it);
 			}
@@ -296,6 +297,7 @@ int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject addi
 		else
 			return_reason = 2; /* don't assume the timeout has passed when we got a signal */
 	}
+
 	return return_reason;
 }
 
@@ -367,7 +369,7 @@ PyObject *eMainloop::poll(ePyObject timeout, ePyObject dict)
 	if (app_quit_now)
 		Py_RETURN_NONE;
 
-	int twisted_timeout = (timeout == Py_None) ? 0 : PyInt_AsLong(timeout);
+	int twisted_timeout = (timeout == Py_None) ? 0 : PyLong_AsLong(timeout);
 
 	iterate(twisted_timeout, &res, dict);
 	if (res)

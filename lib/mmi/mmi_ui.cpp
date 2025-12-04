@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <lib/python/python.h>
 #include <lib/base/init.h>
 #include <lib/base/init_num.h>
 #include <lib/base/eerror.h>
@@ -177,8 +176,8 @@ int eMMI_UI::mmiScreenClose(int slot, int timeout)
 	data.mmiScreen = PyList_New(1);
 
 	ePyObject tuple = PyTuple_New(2);
-	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("CLOSE"));
-	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(timeout));
+	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("CLOSE"));
+	PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(timeout));
 	PyList_SET_ITEM(data.mmiScreen, 0, tuple);
 	data.mmiScreenReady = 1;
 	stateChanged(slot);
@@ -199,14 +198,14 @@ int eMMI_UI::mmiScreenEnq(int slot, int blind, int answerLen, char *text)
 	data.mmiScreen = PyList_New(2);
 
 	ePyObject tuple = PyTuple_New(1);
-	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("ENQ"));
+	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("ENQ"));
 	PyList_SET_ITEM(data.mmiScreen, 0, tuple);
 
 	tuple = PyTuple_New(4);
-	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("PIN"));
-	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(answerLen));
-	PyTuple_SET_ITEM(tuple, 2, PyString_FromString(text));
-	PyTuple_SET_ITEM(tuple, 3, PyInt_FromLong(blind));
+	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("PIN"));
+	PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(answerLen));
+	PyTuple_SET_ITEM(tuple, 2, PyUnicode_FromString(text));
+	PyTuple_SET_ITEM(tuple, 3, PyLong_FromLong(blind));
 
 	PyList_SET_ITEM(data.mmiScreen, 1, tuple);
 
@@ -235,9 +234,9 @@ int eMMI_UI::mmiScreenBegin(int slot, int listmenu)
 
 	ePyObject tuple = PyTuple_New(1);
 	if (listmenu == 0)				//menu
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("MENU"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("MENU"));
 	else 	//list
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("LIST"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("LIST"));
 
 	PyList_SET_ITEM(data.mmiScreen, 0, tuple);
 
@@ -258,22 +257,22 @@ int eMMI_UI::mmiScreenAddText(int slot, int type, char *value)
 	ePyObject tuple = PyTuple_New(3);
 
 	if (type == 0)					//title
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("TITLE"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("TITLE"));
 	else if (type == 1)				//subtitle
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("SUBTITLE"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("SUBTITLE"));
 	else if (type == 2)				//bottom
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("BOTTOM"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("BOTTOM"));
 	else
-	 	PyTuple_SET_ITEM(tuple, 0, PyString_FromString("TEXT"));
+	 	PyTuple_SET_ITEM(tuple, 0, PyUnicode_FromString("TEXT"));
 
 	eDebug("[eMMI_UI] addText %s with id %d", value, type);
 
-	PyTuple_SET_ITEM(tuple, 1, PyString_FromString(value));
+	PyTuple_SET_ITEM(tuple, 1, PyUnicode_FromString(value));
 
 	if (type > 2)
-		PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong(type-2));
+		PyTuple_SET_ITEM(tuple, 2, PyLong_FromLong(type-2));
 	else
-		PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong(-1));
+		PyTuple_SET_ITEM(tuple, 2, PyLong_FromLong(-1));
 
 	PyList_Append(data.mmiScreen, tuple);
 	Py_DECREF(tuple);

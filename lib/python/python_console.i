@@ -1,8 +1,6 @@
 %{
 #include <lib/base/console.h>
-#include <lib/python/python.h>
 #include "structmember.h"
-#include <Python.h>
 
 extern "C" {
 
@@ -159,7 +157,7 @@ eConsolePy_execute(eConsolePy* self, PyObject *argt)
 		while(argpos < argc)
 		{
 			PyObject *arg = PyTuple_GET_ITEM(argt, argpos);
-			if (!PyString_Check(arg))
+			if (!PyUnicode_Check(arg))
 			{
 				char err[255];
 				if (argpos)
@@ -169,16 +167,16 @@ eConsolePy_execute(eConsolePy* self, PyObject *argt)
 				PyErr_SetString(PyExc_TypeError, err);
 				return NULL;
 			}
-			argv[argpos++] = PyString_AsString(arg);
+			argv[argpos++] = PyUnicode_AsUTF8(arg);
 		}
 		argv[argpos] = 0;
-		return PyInt_FromLong(self->cont->execute(argv[0], argv+1));
+		return PyLong_FromLong(self->cont->execute(argv[0], argv+1));
 	}
 	else
 	{
 		const char *str;
 		if (PyArg_ParseTuple(argt, "s", &str))
-			return PyInt_FromLong(self->cont->execute(str));
+			return PyLong_FromLong(self->cont->execute(str));
 		PyErr_SetString(PyExc_TypeError,
 			"cmd is not a string!");
 	}
@@ -190,15 +188,6 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 {
 	char *data;
 	int len = -1;
-#if PY_MAJOR_VERSION >= 3
-	if (!PyArg_ParseTuple(args, "s|i", &data, &len))
-	{
-		PyErr_SetString(PyExc_TypeError,
-			"1st arg must be a string, optionaly 2nd arg can be the string length");
-		return NULL;
-	}
-	int data_len = strlen(data);
-#else
 	int data_len;
 	if (!PyArg_ParseTuple(args, "s#|i", &data, &data_len, &len))
 	{
@@ -206,7 +195,6 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 			"1st arg must be a string, optionaly 2nd arg can be the string length");
 		return NULL;
 	}
-#endif
 	if (len < 0)
 		len = data_len;	
 	self->cont->write(data, len);
@@ -216,7 +204,7 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 static PyObject *
 eConsolePy_getPID(eConsolePy* self)
 {
-	return PyInt_FromLong(self->cont->getPID());
+	return PyLong_FromLong(self->cont->getPID());
 }
 
 static PyObject *
@@ -350,22 +338,47 @@ static PyTypeObject eConsolePyType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"eConsoleImpl.eConsoleAppContainer", /*tp_name*/
 	sizeof(eConsolePy), /*tp_basicsize*/
-	.tp_dealloc = (destructor)eConsolePy_dealloc,
-	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
-	.tp_doc = "eConsoleAppContainer objects",
-	.tp_traverse = (traverseproc)eConsolePy_traverse,
-	.tp_clear = (inquiry)eConsolePy_clear,
-	.tp_weaklistoffset = offsetof(eConsolePy, in_weakreflist),
-	.tp_methods = eConsolePy_methods,
-	.tp_getset = eConsolePy_getseters,
-	.tp_new = eConsolePy_new,
+	0, /*tp_itemsize*/
+	(destructor)eConsolePy_dealloc, /*tp_dealloc*/
+	0, /*tp_print*/
+	0, /*tp_getattr*/
+	0, /*tp_setattr*/
+	0, /*tp_compare*/
+	0, /*tp_repr*/
+	0, /*tp_as_number*/
+	0, /*tp_as_sequence*/
+	0, /*tp_as_mapping*/
+	0, /*tp_hash */
+	0, /*tp_call*/
+	0, /*tp_str*/
+	0, /*tp_getattro*/
+	0, /*tp_setattro*/
+	0, /*tp_as_buffer*/
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+	"eConsoleAppContainer objects", /* tp_doc */
+	(traverseproc)eConsolePy_traverse, /* tp_traverse */
+	(inquiry)eConsolePy_clear, /* tp_clear */
+	0, /* tp_richcompare */
+	offsetof(eConsolePy, in_weakreflist), /* tp_weaklistoffset */
+	0, /* tp_iter */
+	0, /* tp_iternext */
+	eConsolePy_methods, /* tp_methods */
+	0, /* tp_members */
+	eConsolePy_getseters, /* tp_getset */
+	0, /* tp_base */
+	0, /* tp_dict */
+	0, /* tp_descr_get */
+	0, /* tp_descr_set */
+	0, /* tp_dictoffset */
+	0, /* tp_init */
+	0, /* tp_alloc */
+	eConsolePy_new, /* tp_new */
 };
 
 static PyMethodDef console_module_methods[] = {
 	{}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
 	static struct PyModuleDef eConsole_moduledef = {
 	PyModuleDef_HEAD_INIT,
 	"eConsoleImpl",																			/* m_name */
@@ -377,26 +390,7 @@ static PyMethodDef console_module_methods[] = {
 	NULL,																					/* m_clear */
 	NULL,																					/* m_free */
 	};
-#endif
 
-#if PY_MAJOR_VERSION < 3
-void eConsoleInit(void)
-{
-	PyObject* m = Py_InitModule3("eConsoleImpl", console_module_methods,
-		"Module that implements eConsoleAppContainer with working cyclic garbage collection.");
-
-	if (m == NULL)
-		return;
-
-	if (!PyType_Ready(&eConsolePyType))
-	{
-		Org_Py_INCREF((PyObject*)&eConsolePyType);
-		PyModule_AddObject(m, "eConsoleAppContainer", (PyObject*)&eConsolePyType);
-	}
-}
-#endif
-
-#if PY_MAJOR_VERSION >= 3
 PyObject* PyInit_eConsoleImpl(void)
 {
 	PyObject* m = PyModule_Create(&eConsole_moduledef);
@@ -411,6 +405,5 @@ PyObject* PyInit_eConsoleImpl(void)
 	}
 	return m;
 }
-#endif
 }
 %}
