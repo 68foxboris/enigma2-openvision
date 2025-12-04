@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from Components.config import config, ConfigSlider, ConfigSelection, ConfigYesNo, ConfigEnableDisable, ConfigSubsection, ConfigBoolean, ConfigSelectionNumber, ConfigNothing, NoSave
-from enigma import eAVControl, eDVBVolumecontrol, getDesktop
+from enigma import eAVSwitch, eAVControl, eDVBVolumecontrol, getDesktop
 from Components.SystemInfo import BoxInfo
 from os.path import isfile
 from Tools.AVHelper import pChoice, readChoices
 from Tools.Directories import fileWriteLine
 
+iAVSwitch = None  # will be initialized later, allows to import name 'iAVSwitch' from 'Components.AVSwitch'
+
 MODULE_NAME = __name__.split(".")[-1]
 
 model = BoxInfo.getItem("model")
 brand = BoxInfo.getItem("brand")
+AMLOGIC = BoxInfo.getItem("AmlogicFamily")
 platform = BoxInfo.getItem("platform")
 
 
@@ -36,20 +39,29 @@ class AVSwitch:
 			eAVControl.getInstance().setVideoSize(newtop, 0, newwidth, newheight)
 
 	def setColorFormat(self, value):
-		if not self.current_port:
-			self.current_port = config.av.videoport.value
-		if self.current_port == "YPbPr":
-			eAVControl.getInstance().setColorFormat("yuv")
-		elif self.current_port == "RCA":
-			eAVControl.getInstance().setColorFormat("cvbs")
-		else:
-			eAVControl.getInstance().setColorFormat(value)
+		eAVSwitch.getInstance().setColorFormat(value)
+
+
+
+
+
+
+
 
 	def setInput(self, input):
 		eAVControl.getInstance().setInput(input, 1)
 
+	def setVideoModeDirect(self, mode):
+		if AMLOGIC:
+			rate = mode[-4:].replace("hz", "Hz")
+			force = int(rate[:-2])
+			mode = mode[:-4]
+			self.setMode("HDMI", mode, rate, force)
+		else:
+			eAVControl.getInstance().setVideoMode(mode)
+
 	def setSystem(self, value):
-		eAVControl.getInstance().setVideoMode(mode)
+		eAVSwitch.getInstance().setVideomode(value)
 
 	def getOutputAspect(self):
 		valstr = config.av.aspectratio.value
@@ -102,7 +114,7 @@ class AVSwitch:
 			value = 2 # auto(4:3_off)
 		else:
 			value = 1 # auto
-		eAVControl.getInstance().setWSS(configElement.value, 1)
+		eAVControl.getInstance().setWSS(value)
 
 
 def InitAVSwitch():
@@ -114,11 +126,11 @@ def InitAVSwitch():
 	colorformat_choices = {"cvbs": "CVBS"}
 
 	# when YUV, Scart or S-Video is not support by HW, don't let the user select it
-	if BoxInfo.getItem("yuv"):
+	if BoxInfo.getItem("HasYPbPr"):
 		colorformat_choices["yuv"] = "YPbPr"
-	if BoxInfo.getItem("SCART"):
+	if BoxInfo.getItem("HasScart"):
 		colorformat_choices["rgb"] = "RGB"
-	if BoxInfo.getItem("svideo"):
+	if BoxInfo.getItem("HasSVideo"):
 		colorformat_choices["svideo"] = "S-Video"
 
 	config.av.colorformat = ConfigSelection(choices=colorformat_choices, default="cvbs")
@@ -211,12 +223,8 @@ def InitAVSwitch():
 	config.av.vcrswitch = ConfigEnableDisable(default=False)
 
 	def setColorFormat(configElement):
-		if config.av.videoport and config.av.videoport.value == "YPbPr":
-			iAVSwitch.setColorFormat("yuv")
-		elif config.av.videoport and config.av.videoport.value == "RCA":
-			iAVSwitch.setColorFormat("cvbs")
-		else:
-			iAVSwitch.setColorFormat(configElement.value)
+		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
+		iAVSwitch.setColorFormat(map[configElement.value])
 	config.av.colorformat.addNotifier(setColorFormat)
 
 	def setAspectRatio(configElement):

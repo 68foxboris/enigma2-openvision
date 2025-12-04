@@ -12,7 +12,7 @@ model = BoxInfo.getItem("model")
 platform = BoxInfo.getItem("platform")
 socfamily = BoxInfo.getItem("socfamily").lower().replace('bcm', '').replace('hisi', '').replace('advca', '').replace('smp', '').replace('aml', '')
 has_dvi = BoxInfo.getItem("DreamBoxDVI")
-has_scart = BoxInfo.getItem("SCART")
+has_scart = BoxInfo.getItem("HasScart")
 has_yuv = BoxInfo.getItem("yuv")
 has_rca = BoxInfo.getItem("rca")
 has_avjack = BoxInfo.getItem("avjack")
@@ -22,7 +22,6 @@ has_avjack = BoxInfo.getItem("avjack")
 # available and preferred modes, as well as handling the currently
 # selected mode. No other strict checking is done.
 
-config.av = ConfigSubsection()
 config.av.edid_override = ConfigYesNo(default=False)
 
 
@@ -91,12 +90,12 @@ class VideoHardware:
 
 	modes = {}  # a list of (high-level) modes for a certain port.
 
-	if has_scart:
+	if BoxInfo.getItem("HasScart"):
 		modes["Scart"] = ["PAL", "NTSC", "Multi"]
-	if has_rca:
+	if BoxInfo.getItem("HasComposite"):
 		modes["RCA"] = ["576i", "PAL", "NTSC", "Multi"]
-	if has_avjack:
-		modes["Jack"] = ["PAL", "NTSC", "Multi"]
+	if BoxInfo.getItem("HasYPbPr"):
+		modes["YPbPr"] = ["PAL", "NTSC", "Multi"]
 
 	if BoxInfo.getItem("uhd4k"):
 		if socfamily in ("7376", "7444", "7366", "5272s", "7445", "7445s"):
@@ -273,7 +272,7 @@ class VideoHardware:
 						continue
 					ratelist.append((rate, rate))
 				config.av.videorate[mode] = ConfigSelection(choices=ratelist)
-		config.av.videoport = ConfigSelection(choices=lst)
+		config.av.videoport = ConfigSelection(default="HDMI", choices=lst)
 
 	def isPortAvailable(self, port):  # Fix me!
 		return True
@@ -320,6 +319,15 @@ class VideoHardware:
 				print("[AVSwitch] Current mode not available, not setting video mode!")
 		else:
 			print("[AVSwitch] Current port not available, not setting video mode!")
+
+	def setVideoModeDirect(self, mode):
+		if BoxInfo.getItem("AmlogicFamily"):
+			rate = mode[-4:].replace("hz", "Hz")
+			force = int(rate[:-2])
+			mode = mode[:-4]
+			self.setMode("HDMI", mode, rate, force)
+		else:
+			eAVControl.getInstance().setVideoMode(mode)
 
 	def setMode(self, port, mode, rate):
 		force = config.av.force.value
