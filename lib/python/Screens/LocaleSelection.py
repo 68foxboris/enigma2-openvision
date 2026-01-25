@@ -376,18 +376,6 @@ class LocaleSelection(Screen, HelpableScreen):
 		config.misc.country.save()
 		international.activateLanguage(self.currentLocale, runCallbacks=True)
 		international.activateLocale(self.currentLocale, runCallbacks=True)
-		if config.misc.firstrun.value:  # define area and city without network only in first run
-			from Tools.Directories import fileReadXML
-			from Components.Timezones import TIMEZONE_FILE
-			fileDom = fileReadXML(TIMEZONE_FILE)
-			for zone in fileDom.findall("zone"):
-				if self.currentLocale in zone.attrib.get("localeCode"):
-					area = zone.attrib.get("zone").split("/")[0]
-					config.timezone.area.value = area
-					if area in zone.attrib.get("zone"):
-						city = zone.attrib.get("zone").split("/")[1]
-						config.timezone.val.value = city
-			config.ntp.timesync.value = "dvb"
 		self.close()
 
 	def keyCancel(self, closeParameters=()):
